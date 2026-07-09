@@ -10,7 +10,8 @@ afcp(
   by = NULL,
   clusters = NULL,
   weights = NULL,
-  se_type = "stata"
+  se_type = NULL,
+  min_clusters = 2L
 )
 }
 \arguments{
@@ -26,7 +27,14 @@ cluster-robust standard errors.}
 
 \item{weights}{Optional name of a survey-weight column.}
 
-\item{se_type}{Standard-error type passed to \code{estimatr::lm_robust()}.}
+\item{se_type}{Standard-error type passed to \code{estimatr::lm_robust()}. The
+default \code{NULL} lets \code{lm_robust()} choose its own default: \code{"CR2"} when
+\code{clusters} is supplied, \code{"HC2"} otherwise. Set explicitly (e.g. \code{"stata"})
+only to override that.}
+
+\item{min_clusters}{When \code{clusters} is supplied, groups with fewer than this
+many distinct clusters are dropped rather than estimated (a single-cluster
+AFCP has no usable sampling variance). Ignored without \code{clusters}.}
 }
 \value{
 A tibble of tidy estimates: the grouping columns (if any) plus

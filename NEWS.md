@@ -9,3 +9,9 @@
   (non-mutually-exclusive) contrasts.
 * `check_conjoint()`: validate the forced-choice data contract.
 * `afcp()`: thin Average Feature Choice Probability estimator over a matchup.
+  `se_type` now defaults to `NULL`, deferring to `lm_robust()`'s own default
+  (`CR2` when clustered, `HC2` otherwise); the previous hard-coded `"stata"`
+  silently changed the standard errors. New `min_clusters` argument (default 2)
+  drops groups with too few clusters to estimate, matching the study-level
+  behavior in the meta-analysis pipeline. Validated to reproduce the paper's
+  Shiny-app estimates bit-for-bit on the full 163-study corpus.

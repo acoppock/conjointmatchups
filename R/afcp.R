@@ -17,7 +17,13 @@
 #' @param clusters Optional name of the cluster column (e.g. `"resp_id"`) for
 #'   cluster-robust standard errors.
 #' @param weights Optional name of a survey-weight column.
-#' @param se_type Standard-error type passed to `estimatr::lm_robust()`.
+#' @param se_type Standard-error type passed to `estimatr::lm_robust()`. The
+#'   default `NULL` lets `lm_robust()` choose its own default: `"CR2"` when
+#'   `clusters` is supplied, `"HC2"` otherwise. Set explicitly (e.g. `"stata"`)
+#'   only to override that.
+#' @param min_clusters When `clusters` is supplied, groups with fewer than this
+#'   many distinct clusters are dropped rather than estimated (a single-cluster
+#'   AFCP has no usable sampling variance). Ignored without `clusters`.
 #'
 #' @return A tibble of tidy estimates: the grouping columns (if any) plus
 #'   `estimate`, `std.error`, `conf.low`, `conf.high`, and the count of
@@ -38,7 +44,8 @@
 #' }
 #' @export
 afcp <- function(matchups, outcome = "A_wins", by = NULL,
-                 clusters = NULL, weights = NULL, se_type = "stata") {
+                 clusters = NULL, weights = NULL, se_type = NULL,
+                 min_clusters = 2L) {
   if (!requireNamespace("estimatr", quietly = TRUE)) {
     stop("`afcp()` requires the 'estimatr' package. Install it, or estimate ",
          "directly from the output of `get_matchups()`.", call. = FALSE)
@@ -46,10 +53,15 @@ afcp <- function(matchups, outcome = "A_wins", by = NULL,
   stopifnot(is.data.frame(matchups), outcome %in% names(matchups))
 
   fit_one <- function(d) {
+    if (!is.null(clusters) &&
+        dplyr::n_distinct(d[[clusters]]) < min_clusters) {
+      return(tibble::tibble())
+    }
     args <- list(
       formula = stats::reformulate("1", response = outcome),
-      data = d, se_type = se_type
+      data = d
     )
+    if (!is.null(se_type)) args$se_type <- se_type
     if (!is.null(clusters)) args$clusters <- d[[clusters]]
     if (!is.null(weights)) args$weights <- d[[weights]]
     fit <- tryCatch(do.call(estimatr::lm_robust, args), error = function(e) NULL)
