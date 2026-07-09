@@ -1,0 +1,33 @@
+url: https://acoppock.github.io/conjointmatchups/
+
+template:
+  bootstrap: 5
+
+reference:
+- title: Reshape
+  desc: Move losslessly between the profile-long and task-wide representations.
+  contents:
+  - as_tasks
+  - as_profiles
+- title: Extract matchups
+  desc: Pull the tasks realizing a contrast between two profiles, with a clean outcome.
+  contents:
+  - get_matchups
+  - valid_contrast
+  - contrast_message
+- title: Validate
+  contents:
+  - check_conjoint
+- title: Estimate
+  desc: A thin convenience for the Average Feature Choice Probability.
+  contents:
+  - afcp
+- title: Data
+  contents:
+  - kc_yougov
+
+articles:
+- title: Get started
+  navbar: ~
+  contents:
+  - conjointmatchups

@@ -1,0 +1,117 @@
+---
+title: "Getting your conjoint data into shape"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting your conjoint data into shape}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+```{r setup}
+library(conjointmatchups)
+```
+
+The single most important thing to get right is the **shape of your input data**. Everything else in `conjointmatchups` follows from it. This vignette shows the required format, how to reshape into it, and the two-step workflow it unlocks: reshape, then extract matchups.
+
+## The required format: profile-long
+
+`conjointmatchups` expects your data in **profile-long** form: one row per candidate profile per choice task, with two profiles per task. Each row needs
+
+- columns that **key the profile**: a respondent id, a task id (unique within respondent), and a profile index (which of the two candidates in the task this row is);
+- a **binary `chosen` indicator**: 1 if this profile was picked in its task, 0 otherwise, with exactly one chosen per task;
+- one column per **randomized attribute** (party, gender, and so on).
+
+The names are up to you. Every function takes the key column names as arguments. The shipped `kc_yougov` dataset (the YouGov sample from Kirkland and Coppock 2018) is in exactly this form:
+
+```{r}
+head(kc_yougov, 6)
+```
+
+Here `respondent`, `task`, `profile` key each row; `chosen` is the outcome; `party` through `experience` are the randomized attributes; and `resp_party` is a respondent-level covariate carried along for subgroup analysis.
+
+Attributes may be `NA` when a feature was not shown in a given condition. In these data `party` is shown only in the partisan condition (the substantive point of the study), so it is `NA` for the rest. That is fine: matchups on party simply use the tasks where party was shown.
+
+### If your data is already task-wide
+
+If instead you have one row per task with per-profile columns (`party_1`, `party_2`, `chosen_1`, `chosen_2`, ...), use `as_profiles()` to get to profile-long, or skip straight to `get_matchups()`, which operates on task-wide data directly (see below).
+
+### Checklist for your own data
+
+Before anything else, make sure you can point to:
+
+| You need | In `kc_yougov` |
+|---|---|
+| respondent id | `respondent` |
+| task id (unique within respondent) | `task` |
+| profile index (1/2) | `profile` |
+| binary chosen indicator | `chosen` |
+| one column per attribute | `party`, `gender`, ... |
+
+If your raw export has candidate attributes spread across oddly named columns, reshape it into the table above first (with `tidyr`), then continue.
+
+## Step 1: reshape to task-wide with `as_tasks()`
+
+Matchup extraction compares the two profiles within a task, so it works on the **task-wide** representation: one row per task, every attribute suffixed with the profile index.
+
+```{r}
+tasks <- as_tasks(
+  kc_yougov,
+  task_keys = c("respondent", "task"),
+  profile = "profile",
+  outcome = "chosen"
+)
+tasks[, c("respondent", "task", "party_1", "party_2", "chosen_1", "chosen_2")] |>
+  head(4)
+```
+
+`as_profiles()` is the exact inverse if you ever need to go back.
+
+## Step 2: extract a matchup with `get_matchups()`
+
+A **matchup** is the subset of tasks where one profile carries the attributes you pin in `A` and the other carries those in `B`, in either display position. The result renames the outcome to a clean binary, `A_wins`.
+
+```{r}
+dem_v_rep <- get_matchups(
+  tasks,
+  A = list(party = "Democrat"),
+  B = list(party = "Republican"),
+  outcome = "chosen"
+)
+head(dem_v_rep, 4)
+mean(dem_v_rep$A_wins)  # share of Democrat wins in these head-to-heads
+```
+
+You can pin several attributes at once to hold the comparison fixed, for example a younger woman versus an older man:
+
+```{r}
+young_woman_v_old_man <- get_matchups(
+  tasks,
+  A = list(gender = "woman", age = "younger"),
+  B = list(gender = "man",   age = "older"),
+  outcome = "chosen"
+)
+mean(young_woman_v_old_man$A_wins)
+```
+
+### Well-defined contrasts
+
+A and B must be **mutually exclusive**: they must differ on at least one shared attribute. Otherwise a single profile could satisfy both sides and the "estimate" would reflect which candidate was shown first, not any real difference. `get_matchups()` refuses such a contrast, and you can check it yourself:
+
+```{r}
+valid_contrast(list(party = "Democrat"), list(party = "Republican"))
+valid_contrast(list(party = "Democrat"), list(gender = "woman"))
+```
+
+## Step 3 (optional): estimate the AFCP
+
+The matchup is ready for any estimator. `afcp()` is a thin convenience that computes the Average Feature Choice Probability, the chance the A-side wins, with respondent-clustered standard errors:
+
+```{r, eval = requireNamespace("estimatr", quietly = TRUE)}
+afcp(dem_v_rep, clusters = "respondent")
+```
+
+For richer estimands (AMCE, marginal means) hand the matchup, or the task-wide data, to `cregg` or `cjoint`. `conjointmatchups` stops at producing the analysis-ready dataset.

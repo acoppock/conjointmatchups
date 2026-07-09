@@ -16,6 +16,32 @@ Every forced-choice conjoint task is two things at once:
 
 Analysts hand-roll the pivot between these constantly, and get it wrong: they drop the pairing, misalign the outcome, or silently reorder profiles. `conjointmatchups` makes that pivot canonical and lossless (`as_tasks()`, `as_profiles()`), then adds the move that single-experiment packages skip: restricting to the tasks that realize a *controlled contrast* between the two profiles and renaming the outcome to a clean binary (`get_matchups()`). What comes out is ready for `lm`, `glm`, `estimatr::lm_robust()`, or a random-effects meta-analysis across many studies.
 
+## The one thing to get right: your input format
+
+`conjointmatchups` expects **profile-long** data: one row per candidate profile per choice task, two profiles per task. Each row needs columns that key the profile (a respondent id, a task id, a profile index), a binary `chosen` indicator (exactly one profile chosen per task), and one column per randomized attribute. The names are yours to choose; every function takes the key column names as arguments.
+
+The shipped `kc_yougov` dataset (the YouGov sample from Kirkland and Coppock 2018) is in exactly this shape:
+
+```r
+library(conjointmatchups)
+head(kc_yougov)
+#>   respondent  task profile chosen party       gender race     age    occupation   experience       resp_party
+#>            1     1       1      0 NA          man    Hispanic older  professional prior experience Democrat
+#>            1     1       2      1 NA          man    Black    older  teacher      prior experience Democrat
+#>            1     2       1      1 Independent man    Black    younger business    prior experience Democrat
+#>            1     2       2      0 Independent woman  Hispanic older  business     prior experience Democrat
+```
+
+| You need | In `kc_yougov` |
+|---|---|
+| respondent id | `respondent` |
+| task id (unique within respondent) | `task` |
+| profile index (1/2) | `profile` |
+| binary chosen indicator | `chosen` |
+| one column per attribute | `party`, `gender`, ... |
+
+Attributes may be `NA` when a feature was not shown in a condition (here `party` appears only in the partisan arm). If your raw export is shaped differently, reshape it into this table first. If it is already task-wide (`party_1`, `party_2`, ...), `as_profiles()` gets you here, or hand it straight to `get_matchups()`. The [Get started vignette](https://acoppock.github.io/conjointmatchups/articles/conjointmatchups.html) walks through the whole path.
+
 ## Installation
 
 ```r
