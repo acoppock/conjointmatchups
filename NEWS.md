@@ -1,5 +1,13 @@
 # conjointmatchups 0.0.0.9000
 
+* Bug fix: `get_matchups()` with an unconstrained side (an empty `A` or `B`
+  list) no longer errors with phantom `_1`/`_2` columns (a `paste0()`
+  zero-length recycling gotcha).
+* Bug fix: `afcp()` now drops a degenerate study (e.g. a single cluster) whose
+  fit returns unusable components, instead of erroring during coefficient
+  extraction; the `tryCatch` covers extraction, not just the model fit.
+* Test coverage raised to ~99% (added tests for weights, unconstrained-side
+  matchups, degenerate-fit handling, and the input-validation error paths).
 * Initial scaffold.
 * `as_tasks()` / `as_profiles()`: lossless pivot between profile-long and
   task-wide representations of a forced-choice conjoint.

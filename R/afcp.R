@@ -67,19 +67,23 @@ afcp <- function(matchups, outcome = "A_wins", by = NULL,
     if (!is.null(se_type)) args$se_type <- se_type
     if (!is.null(clusters)) args$clusters <- d[[clusters]]
     if (!is.null(weights)) args$weights <- d[[weights]]
-    fit <- tryCatch(do.call(estimatr::lm_robust, args), error = function(e) NULL)
-    if (is.null(fit)) return(tibble::tibble())
-    i <- "(Intercept)"
-    tibble::tibble(
-      estimate = unname(fit$coefficients[[i]]),
-      std.error = unname(fit$std.error[[i]]),
-      statistic = unname(fit$statistic[[i]]),
-      p.value = unname(fit$p.value[[i]]),
-      conf.low = unname(fit$conf.low[[i]]),
-      conf.high = unname(fit$conf.high[[i]]),
-      df = unname(fit$df[[i]]),
-      n = fit$nobs
-    )
+    # Wrap both the fit and the extraction: a degenerate study (e.g. a single
+    # cluster) can return a fit whose components are missing, which would error
+    # on extraction. Such a study is dropped rather than aborting the group loop.
+    tryCatch({
+      fit <- do.call(estimatr::lm_robust, args)
+      i <- "(Intercept)"
+      tibble::tibble(
+        estimate = unname(fit$coefficients[[i]]),
+        std.error = unname(fit$std.error[[i]]),
+        statistic = unname(fit$statistic[[i]]),
+        p.value = unname(fit$p.value[[i]]),
+        conf.low = unname(fit$conf.low[[i]]),
+        conf.high = unname(fit$conf.high[[i]]),
+        df = unname(fit$df[[i]]),
+        n = fit$nobs
+      )
+    }, error = function(e) tibble::tibble())
   }
 
   if (is.null(by)) {

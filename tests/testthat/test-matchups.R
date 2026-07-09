@@ -34,3 +34,24 @@ test_that("keep argument restricts carried columns", {
                     outcome = "chosen", keep = "resp_id")
   expect_equal(names(m), c("resp_id", "A_wins"))
 })
+
+test_that("an unconstrained side matches any opponent", {
+  tasks <- tibble::tibble(
+    gender_1 = c("woman", "man"), gender_2 = c("man", "woman"),
+    chosen_1 = c(1, 0),           chosen_2 = c(0, 1)
+  )
+  m <- get_matchups(tasks, A = list(gender = "woman"), B = list(),
+                    outcome = "chosen", check_contrast = FALSE)
+  expect_equal(nrow(m), 2)          # a woman appears in every task
+  expect_equal(m$A_wins, c(1, 1))   # and the woman was chosen both times
+})
+
+test_that("get_matchups errors on a missing column", {
+  tasks <- tibble::tibble(party_1 = "R", party_2 = "D",
+                          chosen_1 = 1, chosen_2 = 0)
+  expect_error(
+    get_matchups(tasks, list(gender = "woman"), list(gender = "man"),
+                 outcome = "chosen"),
+    "not found"
+  )
+})

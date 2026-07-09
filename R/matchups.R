@@ -58,11 +58,14 @@ get_matchups <- function(tasks, A, B, outcome, profiles = c("1", "2"),
   s1 <- profiles[1]
   s2 <- profiles[2]
 
-  needed <- c(
-    paste0(names(A), sep, s1), paste0(names(A), sep, s2),
-    paste0(names(B), sep, s1), paste0(names(B), sep, s2),
-    paste0(outcome, sep, s1), paste0(outcome, sep, s2)
-  )
+  # An unconstrained side (empty A or B) contributes no attribute columns. Guard
+  # against paste0() recycling character(0) to "" (which would fabricate "_1"/"_2").
+  cols_for <- function(nms) {
+    if (length(nms) == 0) return(character(0))
+    c(paste0(nms, sep, s1), paste0(nms, sep, s2))
+  }
+  needed <- c(cols_for(names(A)), cols_for(names(B)),
+              paste0(outcome, sep, s1), paste0(outcome, sep, s2))
   missing_cols <- setdiff(unique(needed), names(tasks))
   if (length(missing_cols)) {
     stop("Columns not found in `tasks`: ",

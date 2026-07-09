@@ -24,3 +24,8 @@ test_that("as_tasks errors on missing keys", {
     "not found"
   )
 })
+
+test_that("as_profiles errors when no columns match the suffix pattern", {
+  expect_error(as_profiles(data.frame(a = 1, b = 2), task_keys = "a"),
+               "No columns match")
+})

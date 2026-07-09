@@ -11,3 +11,8 @@ test_that("check_conjoint catches ties and double-picks", {
   expect_error(check_conjoint(data.frame(chosen_1 = 2, chosen_2 = 0)),
                "0/1")
 })
+
+test_that("check_conjoint errors when outcome columns are absent", {
+  expect_error(check_conjoint(data.frame(x = 1), outcome = "chosen"),
+               "not found")
+})
