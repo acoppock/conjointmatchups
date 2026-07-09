@@ -25,9 +25,12 @@
 #'   many distinct clusters are dropped rather than estimated (a single-cluster
 #'   AFCP has no usable sampling variance). Ignored without `clusters`.
 #'
-#' @return A tibble of tidy estimates: the grouping columns (if any) plus
-#'   `estimate`, `std.error`, `conf.low`, `conf.high`, and the count of
-#'   observations. `estimate` is the AFCP.
+#' @return A tidy tibble, one row per group (or a single row when `by` is
+#'   `NULL`): the grouping columns (if any) plus `estimate` (the AFCP),
+#'   `std.error`, `statistic`, `p.value`, `conf.low`, `conf.high`, `df`, and
+#'   `n` (observations). This is the tidy-tibble form, not a fit object, so that
+#'   many per-group AFCPs compose directly into a meta-analysis; call
+#'   `estimatr::lm_robust()` yourself if you need the fit.
 #'
 #' @examples
 #' \donttest{
@@ -66,12 +69,15 @@ afcp <- function(matchups, outcome = "A_wins", by = NULL,
     if (!is.null(weights)) args$weights <- d[[weights]]
     fit <- tryCatch(do.call(estimatr::lm_robust, args), error = function(e) NULL)
     if (is.null(fit)) return(tibble::tibble())
-    co <- fit$coefficients
+    i <- "(Intercept)"
     tibble::tibble(
-      estimate = unname(co[["(Intercept)"]]),
-      std.error = unname(fit$std.error[["(Intercept)"]]),
-      conf.low = unname(fit$conf.low[["(Intercept)"]]),
-      conf.high = unname(fit$conf.high[["(Intercept)"]]),
+      estimate = unname(fit$coefficients[[i]]),
+      std.error = unname(fit$std.error[[i]]),
+      statistic = unname(fit$statistic[[i]]),
+      p.value = unname(fit$p.value[[i]]),
+      conf.low = unname(fit$conf.low[[i]]),
+      conf.high = unname(fit$conf.high[[i]]),
+      df = unname(fit$df[[i]]),
       n = fit$nobs
     )
   }

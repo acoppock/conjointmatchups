@@ -37,9 +37,12 @@ many distinct clusters are dropped rather than estimated (a single-cluster
 AFCP has no usable sampling variance). Ignored without \code{clusters}.}
 }
 \value{
-A tibble of tidy estimates: the grouping columns (if any) plus
-\code{estimate}, \code{std.error}, \code{conf.low}, \code{conf.high}, and the count of
-observations. \code{estimate} is the AFCP.
+A tidy tibble, one row per group (or a single row when \code{by} is
+\code{NULL}): the grouping columns (if any) plus \code{estimate} (the AFCP),
+\code{std.error}, \code{statistic}, \code{p.value}, \code{conf.low}, \code{conf.high}, \code{df}, and
+\code{n} (observations). This is the tidy-tibble form, not a fit object, so that
+many per-group AFCPs compose directly into a meta-analysis; call
+\code{estimatr::lm_robust()} yourself if you need the fit.
 }
 \description{
 A convenience wrapper that closes the loop on the matchup workflow: given the
