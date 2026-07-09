@@ -1,0 +1,168 @@
+# conjointmatchups
+
+`conjointmatchups` provides the **data grammar** of forced-choice
+(paired) conjoint experiments: lossless reshaping between the two
+natural representations of the data, and extraction of *matchups*, the
+analysis-ready pairwise sub-experiments that let you ask “when a
+candidate with these features faced a candidate with those features,
+which won?”
+
+It is intentionally small. It does not estimate AMCEs or marginal means.
+It produces the datasets that estimators consume.
+
+## The problem it solves
+
+Every forced-choice conjoint task is two things at once:
+
+- **Profile-long form** (one row per candidate profile): natural for
+  describing and randomizing attributes.
+- **Task-wide form** (one row per choice task, with per-profile columns
+  like `party_1`, `party_2`): natural for modeling the binary choice.
+
+Analysts hand-roll the pivot between these constantly, and get it wrong:
+they drop the pairing, misalign the outcome, or silently reorder
+profiles. `conjointmatchups` makes that pivot canonical and lossless
+([`as_tasks()`](https://acoppock.github.io/conjointmatchups/reference/as_tasks.md),
+[`as_profiles()`](https://acoppock.github.io/conjointmatchups/reference/as_profiles.md)),
+then adds the move that single-experiment packages skip: restricting to
+the tasks that realize a *controlled contrast* between the two profiles
+and renaming the outcome to a clean binary
+([`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md)).
+What comes out is ready for `lm`, `glm`,
+[`estimatr::lm_robust()`](https://declaredesign.org/r/estimatr/reference/lm_robust.html),
+or a random-effects meta-analysis across many studies.
+
+## The one thing to get right: your input format
+
+`conjointmatchups` expects **profile-long** data: one row per candidate
+profile per choice task, two profiles per task. Each row needs columns
+that key the profile (a respondent id, a task id, a profile index), a
+binary `chosen` indicator (exactly one profile chosen per task), and one
+column per randomized attribute. The names are yours to choose; every
+function takes the key column names as arguments.
+
+The shipped `kc_yougov` dataset (the YouGov sample from Kirkland and
+Coppock 2018) is in exactly this shape:
+
+``` r
+
+library(conjointmatchups)
+head(kc_yougov)
+#>   respondent  task profile chosen party       gender race     age    occupation   experience       resp_party
+#>            1     1       1      0 NA          man    Hispanic older  professional prior experience Democrat
+#>            1     1       2      1 NA          man    Black    older  teacher      prior experience Democrat
+#>            1     2       1      1 Independent man    Black    younger business    prior experience Democrat
+#>            1     2       2      0 Independent woman  Hispanic older  business     prior experience Democrat
+```
+
+| You need                           | In `kc_yougov`       |
+|------------------------------------|----------------------|
+| respondent id                      | `respondent`         |
+| task id (unique within respondent) | `task`               |
+| profile index (1/2)                | `profile`            |
+| binary chosen indicator            | `chosen`             |
+| one column per attribute           | `party`, `gender`, … |
+
+Attributes may be `NA` when a feature was not shown in a condition (here
+`party` appears only in the partisan arm). If your raw export is shaped
+differently, reshape it into this table first. If it is already
+task-wide (`party_1`, `party_2`, …),
+[`as_profiles()`](https://acoppock.github.io/conjointmatchups/reference/as_profiles.md)
+gets you here, or hand it straight to
+[`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md).
+The [Get started
+vignette](https://acoppock.github.io/conjointmatchups/articles/conjointmatchups.html)
+walks through the whole path.
+
+## Installation
+
+``` r
+
+# install.packages("remotes")
+remotes::install_github("acoppock/conjointmatchups")
+```
+
+## Usage
+
+``` r
+
+library(conjointmatchups)
+
+# profile-long -> task-wide
+tasks <- as_tasks(profiles, task_keys = c("study_id", "resp_id", "task_id"),
+                  profile = "profile", outcome = "chosen")
+
+# extract a Republican-vs-Democrat matchup, outcome renamed to A_wins
+m <- get_matchups(tasks,
+                  A = list(party = "Republican"),
+                  B = list(party = "Democrat"),
+                  outcome = "chosen")
+
+# estimate the AFCP, respondent-clustered, per study
+afcp(m, by = "study_id", clusters = "resp_id", weights = "resp_weights")
+```
+
+[`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md)
+refuses an ill-defined contrast (one where a single profile could
+satisfy both sides), because such a “comparison” measures display
+position, not any real difference.
+[`valid_contrast()`](https://acoppock.github.io/conjointmatchups/reference/valid_contrast.md)
+and
+[`contrast_message()`](https://acoppock.github.io/conjointmatchups/reference/contrast_message.md)
+expose that check for building interfaces.
+
+## Where it sits in the conjoint R ecosystem
+
+The existing conjoint packages all analyze a **single experiment** and
+jump straight to an estimand. None of them owns the reshape-and-select
+layer beneath that step, which is exactly what `conjointmatchups`
+provides.
+
+| Package | What it does | Estimand | Layer |
+|----|----|----|----|
+| [**cjoint**](https://cran.r-project.org/package=cjoint) (Hainmueller, Hopkins, Yamamoto 2014) | The original AMCE estimator | AMCE | estimation |
+| [**cregg**](https://thomasleeper.com/cregg/) (Leeper) | Tidy AMCEs and marginal means with ggplot visualization; auto-detects two-way constraints | AMCE, MM | estimation + viz |
+| [**projoint**](https://yhoriuchi.github.io/projoint/) (Horiuchi, Markovich, Yamamoto) | AMCE/MM with measurement-error / reliability correction | AMCE, MM | estimation |
+| [**factorEx**](https://github.com/naoki-egami/factorEx) (de la Cuesta, Egami, Imai) | Population AMCE and external validity via the profile distribution | pAMCE | estimation |
+| [**afcp**](https://github.com/astrezhnev/afcp) (Abramson, Kocak, Magazinnik, Strezhnev) | The Average Feature Choice Probability estimator and preference-cycle tests | AFCP | estimation |
+| [**conjointdatachecks**](https://github.com/cknotz/conjointdatachecks) (Knotz) | Carryover and randomization QA checks | — | diagnostics |
+| [**conjoint**](https://cran.r-project.org/package=conjoint) | Traditional (marketing) conjoint via part-worth utilities | part-worths | estimation |
+| [**marginaleffects**](https://marginaleffects.com/bonus/conjoint.html) | General marginal-effects machinery; conjoint as a worked example | any | estimation |
+| **conjointmatchups** | Reshape profile ⇄ task; extract matchups with a clean outcome | (none) | **data grammar** |
+
+The relationship to the AFCP estimand is deliberate. `conjointmatchups`
+produces the matchup datasets that the AFCP is defined on: for each pair
+of feature levels, restrict to the tasks pitting them against each other
+and compute the probability one wins (Abramson, Kocak, Magazinnik, and
+Strezhnev). The included
+[`afcp()`](https://acoppock.github.io/conjointmatchups/reference/afcp.md)
+is a thin convenience over
+[`estimatr::lm_robust()`](https://declaredesign.org/r/estimatr/reference/lm_robust.html)
+that closes that loop; for the estimator’s inferential machinery and
+preference-cycle tests, use the
+[`afcp`](https://github.com/astrezhnev/afcp) package directly, and for
+AMCE/MM analyses of a single experiment reach for `cregg` or `cjoint`.
+
+## Design notes
+
+- **Column names are yours.** Every function takes the key column names
+  (task keys, profile index, outcome stem) as arguments; nothing is
+  hard-coded to a particular coding scheme.
+- **Dependency-light core.** The reshape and matchup functions depend
+  only on `dplyr`, `tidyr`, and `tibble`, so an application (e.g. a
+  Shiny explorer) can depend on the data grammar without pulling in an
+  estimation stack. `estimatr` is required only by
+  [`afcp()`](https://acoppock.github.io/conjointmatchups/reference/afcp.md).
+
+## References
+
+Abramson, S. F., Kocak, K., Magazinnik, A., and Strezhnev, A. Detecting
+preference cycles in forced-choice conjoint experiments.
+
+Hainmueller, J., Hopkins, D. J., and Yamamoto, T. (2014). Causal
+inference in conjoint analysis: Understanding multidimensional choices
+via stated preference experiments. *Political Analysis*, 22(1), 1–30.
+
+Leeper, T. J., Hobolt, S. B., and Tilley, J. (2020). Measuring subgroup
+preferences in conjoint experiments. *Political Analysis*, 28(2),
+207–221.
