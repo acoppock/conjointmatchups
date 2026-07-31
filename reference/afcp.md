@@ -2,7 +2,7 @@
 
 A convenience wrapper that closes the loop on the matchup workflow:
 given the output of
-[`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md),
+[`get_matchups()`](https://alexandercoppock.com/conjointmatchups/reference/get_matchups.md),
 it estimates the probability that the A-side profile is chosen (the
 AFCP), optionally within respondent-clustered, weighted groups. The
 estimation itself is a one-liner over
@@ -21,7 +21,8 @@ afcp(
   by = NULL,
   clusters = NULL,
   weights = NULL,
-  se_type = "stata"
+  se_type = NULL,
+  min_clusters = 2L
 )
 ```
 
@@ -30,7 +31,7 @@ afcp(
 - matchups:
 
   A data frame from
-  [`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md).
+  [`get_matchups()`](https://alexandercoppock.com/conjointmatchups/reference/get_matchups.md).
 
 - outcome:
 
@@ -54,12 +55,25 @@ afcp(
 
   Standard-error type passed to
   [`estimatr::lm_robust()`](https://declaredesign.org/r/estimatr/reference/lm_robust.html).
+  The default `NULL` lets `lm_robust()` choose its own default: `"CR2"`
+  when `clusters` is supplied, `"HC2"` otherwise. Set explicitly (e.g.
+  `"stata"`) only to override that.
+
+- min_clusters:
+
+  When `clusters` is supplied, groups with fewer than this many distinct
+  clusters are dropped rather than estimated (a single-cluster AFCP has
+  no usable sampling variance). Ignored without `clusters`.
 
 ## Value
 
-A tibble of tidy estimates: the grouping columns (if any) plus
-`estimate`, `std.error`, `conf.low`, `conf.high`, and the count of
-observations. `estimate` is the AFCP.
+A tidy tibble, one row per group (or a single row when `by` is `NULL`):
+the grouping columns (if any) plus `estimate` (the AFCP), `std.error`,
+`statistic`, `p.value`, `conf.low`, `conf.high`, `df`, and `n`
+(observations). This is the tidy-tibble form, not a fit object, so that
+many per-group AFCPs compose directly into a meta-analysis; call
+[`estimatr::lm_robust()`](https://declaredesign.org/r/estimatr/reference/lm_robust.html)
+yourself if you need the fit.
 
 ## Examples
 
@@ -75,9 +89,9 @@ m <- get_matchups(tasks, list(party = "R"), list(party = "D"),
 if (requireNamespace("estimatr", quietly = TRUE)) {
   afcp(m, by = "study_id", clusters = "resp_id")
 }
-#> # A tibble: 1 × 6
-#>   study_id estimate std.error conf.low conf.high     n
-#>   <chr>       <dbl>     <dbl>    <dbl>     <dbl> <int>
-#> 1 s1              1         0        1         1    40
+#> # A tibble: 1 × 9
+#>   study_id estimate std.error statistic p.value conf.low conf.high    df     n
+#>   <chr>       <dbl>     <dbl>     <dbl>   <dbl>    <dbl>     <dbl> <dbl> <int>
+#> 1 s1              1         0       Inf       0        1         1    19    40
 # }
 ```

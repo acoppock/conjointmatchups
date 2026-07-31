@@ -60,9 +60,9 @@ is fine: matchups on party simply use the tasks where party was shown.
 
 If instead you have one row per task with per-profile columns
 (`party_1`, `party_2`, `chosen_1`, `chosen_2`, …), use
-[`as_profiles()`](https://acoppock.github.io/conjointmatchups/reference/as_profiles.md)
+[`as_profiles()`](https://alexandercoppock.com/conjointmatchups/reference/as_profiles.md)
 to get to profile-long, or skip straight to
-[`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md),
+[`get_matchups()`](https://alexandercoppock.com/conjointmatchups/reference/get_matchups.md),
 which operates on task-wide data directly (see below).
 
 ### Checklist for your own data
@@ -106,7 +106,7 @@ tasks[, c("respondent", "task", "party_1", "party_2", "chosen_1", "chosen_2")] |
 #> 4          1     4 Democrat    Independent        1        0
 ```
 
-[`as_profiles()`](https://acoppock.github.io/conjointmatchups/reference/as_profiles.md)
+[`as_profiles()`](https://alexandercoppock.com/conjointmatchups/reference/as_profiles.md)
 is the exact inverse if you ever need to go back.
 
 ## Step 2: extract a matchup with `get_matchups()`
@@ -157,7 +157,7 @@ A and B must be **mutually exclusive**: they must differ on at least one
 shared attribute. Otherwise a single profile could satisfy both sides
 and the “estimate” would reflect which candidate was shown first, not
 any real difference.
-[`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md)
+[`get_matchups()`](https://alexandercoppock.com/conjointmatchups/reference/get_matchups.md)
 refuses such a contrast, and you can check it yourself:
 
 ``` r
@@ -171,7 +171,7 @@ valid_contrast(list(party = "Democrat"), list(gender = "woman"))
 ## Step 3 (optional): estimate the AFCP
 
 The matchup is ready for any estimator.
-[`afcp()`](https://acoppock.github.io/conjointmatchups/reference/afcp.md)
+[`afcp()`](https://alexandercoppock.com/conjointmatchups/reference/afcp.md)
 is a thin convenience that computes the Average Feature Choice
 Probability, the chance the A-side wins, with respondent-clustered
 standard errors:
@@ -179,10 +179,10 @@ standard errors:
 ``` r
 
 afcp(dem_v_rep, clusters = "respondent")
-#> # A tibble: 1 × 5
-#>   estimate std.error conf.low conf.high     n
-#>      <dbl>     <dbl>    <dbl>     <dbl> <int>
-#> 1    0.589    0.0227    0.545     0.634   582
+#> # A tibble: 1 × 8
+#>   estimate std.error statistic  p.value conf.low conf.high    df     n
+#>      <dbl>     <dbl>     <dbl>    <dbl>    <dbl>     <dbl> <dbl> <int>
+#> 1    0.589    0.0227      25.9 3.81e-88    0.545     0.634  405.   582
 ```
 
 For richer estimands (AMCE, marginal means) hand the matchup, or the

@@ -5,7 +5,7 @@ pivots those rows into a single wide row per task, suffixing every
 non-key column with the profile index (e.g. `party` becomes `party_1`
 and `party_2`). This is the representation used for modeling the binary
 choice and for
-[`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md).
+[`get_matchups()`](https://alexandercoppock.com/conjointmatchups/reference/get_matchups.md).
 
 ## Usage
 
@@ -49,7 +49,7 @@ column `x` and every profile value `p`, a column `x{sep}p`.
 
 ## See also
 
-[`as_profiles()`](https://acoppock.github.io/conjointmatchups/reference/as_profiles.md)
+[`as_profiles()`](https://alexandercoppock.com/conjointmatchups/reference/as_profiles.md)
 for the inverse.
 
 ## Examples

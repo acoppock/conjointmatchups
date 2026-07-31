@@ -22,12 +22,12 @@ Every forced-choice conjoint task is two things at once:
 Analysts hand-roll the pivot between these constantly, and get it wrong:
 they drop the pairing, misalign the outcome, or silently reorder
 profiles. `conjointmatchups` makes that pivot canonical and lossless
-([`as_tasks()`](https://acoppock.github.io/conjointmatchups/reference/as_tasks.md),
-[`as_profiles()`](https://acoppock.github.io/conjointmatchups/reference/as_profiles.md)),
+([`as_tasks()`](https://alexandercoppock.com/conjointmatchups/reference/as_tasks.md),
+[`as_profiles()`](https://alexandercoppock.com/conjointmatchups/reference/as_profiles.md)),
 then adds the move that single-experiment packages skip: restricting to
 the tasks that realize a *controlled contrast* between the two profiles
 and renaming the outcome to a clean binary
-([`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md)).
+([`get_matchups()`](https://alexandercoppock.com/conjointmatchups/reference/get_matchups.md)).
 What comes out is ready for `lm`, `glm`,
 [`estimatr::lm_robust()`](https://declaredesign.org/r/estimatr/reference/lm_robust.html),
 or a random-effects meta-analysis across many studies.
@@ -67,9 +67,9 @@ Attributes may be `NA` when a feature was not shown in a condition (here
 `party` appears only in the partisan arm). If your raw export is shaped
 differently, reshape it into this table first. If it is already
 task-wide (`party_1`, `party_2`, …),
-[`as_profiles()`](https://acoppock.github.io/conjointmatchups/reference/as_profiles.md)
+[`as_profiles()`](https://alexandercoppock.com/conjointmatchups/reference/as_profiles.md)
 gets you here, or hand it straight to
-[`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md).
+[`get_matchups()`](https://alexandercoppock.com/conjointmatchups/reference/get_matchups.md).
 The [Get started
 vignette](https://acoppock.github.io/conjointmatchups/articles/conjointmatchups.html)
 walks through the whole path.
@@ -102,13 +102,13 @@ m <- get_matchups(tasks,
 afcp(m, by = "study_id", clusters = "resp_id", weights = "resp_weights")
 ```
 
-[`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md)
+[`get_matchups()`](https://alexandercoppock.com/conjointmatchups/reference/get_matchups.md)
 refuses an ill-defined contrast (one where a single profile could
 satisfy both sides), because such a “comparison” measures display
 position, not any real difference.
-[`valid_contrast()`](https://acoppock.github.io/conjointmatchups/reference/valid_contrast.md)
+[`valid_contrast()`](https://alexandercoppock.com/conjointmatchups/reference/valid_contrast.md)
 and
-[`contrast_message()`](https://acoppock.github.io/conjointmatchups/reference/contrast_message.md)
+[`contrast_message()`](https://alexandercoppock.com/conjointmatchups/reference/contrast_message.md)
 expose that check for building interfaces.
 
 ## Where it sits in the conjoint R ecosystem
@@ -135,7 +135,7 @@ produces the matchup datasets that the AFCP is defined on: for each pair
 of feature levels, restrict to the tasks pitting them against each other
 and compute the probability one wins (Abramson, Kocak, Magazinnik, and
 Strezhnev). The included
-[`afcp()`](https://acoppock.github.io/conjointmatchups/reference/afcp.md)
+[`afcp()`](https://alexandercoppock.com/conjointmatchups/reference/afcp.md)
 is a thin convenience over
 [`estimatr::lm_robust()`](https://declaredesign.org/r/estimatr/reference/lm_robust.html)
 that closes that loop; for the estimator’s inferential machinery and
@@ -152,7 +152,7 @@ AMCE/MM analyses of a single experiment reach for `cregg` or `cjoint`.
   only on `dplyr`, `tidyr`, and `tibble`, so an application (e.g. a
   Shiny explorer) can depend on the data grammar without pulling in an
   estimation stack. `estimatr` is required only by
-  [`afcp()`](https://acoppock.github.io/conjointmatchups/reference/afcp.md).
+  [`afcp()`](https://alexandercoppock.com/conjointmatchups/reference/afcp.md).
 
 ## References
 

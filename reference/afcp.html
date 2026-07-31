@@ -11,7 +11,7 @@ profile is chosen (the AFCP), optionally within respondent-clustered,
 weighted groups. The estimation itself is a one-liner over
 estimatr::lm_robust(); this function exists only to make
 as_profiles() |&amp;gt; as_tasks() |&amp;gt; get_matchups() |&amp;gt; afcp() a complete
-workflow. For richer estimands (AMCE, marginal means) use 'cregg' or 'cjoint'."></head><body>
+workflow. For richer estimands (AMCE, marginal means) use 'cregg' or 'cjoint'."><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;1,400&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;family=IBM+Plex+Mono:wght@400&amp;display=swap" rel="stylesheet"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -42,7 +42,7 @@ workflow. For richer estimands (AMCE, marginal means) use 'cregg' or 'cjoint'.">
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Average Feature Choice Probability from a matchup</h1>
-      <small class="dont-index">Source: <a href="https://github.com/acoppock/conjointmatchups/blob/HEAD/R/afcp.R" class="external-link"><code>R/afcp.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/acoppock/conjointmatchups/blob/main/R/afcp.R" class="external-link"><code>R/afcp.R</code></a></small>
       <div class="d-none name"><code>afcp.Rd</code></div>
     </div>
 
@@ -64,7 +64,8 @@ workflow. For richer estimands (AMCE, marginal means) use 'cregg' or 'cjoint'.</
 <span>  by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  clusters <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  se_type <span class="op">=</span> <span class="st">"stata"</span></span>
+<span>  se_type <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  min_clusters <span class="op">=</span> <span class="fl">2L</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -95,14 +96,26 @@ cluster-robust standard errors.</p></dd>
 
 
 <dt id="arg-se-type">se_type<a class="anchor" aria-label="anchor" href="#arg-se-type"></a></dt>
-<dd><p>Standard-error type passed to <code><a href="https://declaredesign.org/r/estimatr/reference/lm_robust.html" class="external-link">estimatr::lm_robust()</a></code>.</p></dd>
+<dd><p>Standard-error type passed to <code><a href="https://declaredesign.org/r/estimatr/reference/lm_robust.html" class="external-link">estimatr::lm_robust()</a></code>. The
+default <code>NULL</code> lets <code>lm_robust()</code> choose its own default: <code>"CR2"</code> when
+<code>clusters</code> is supplied, <code>"HC2"</code> otherwise. Set explicitly (e.g. <code>"stata"</code>)
+only to override that.</p></dd>
+
+
+<dt id="arg-min-clusters">min_clusters<a class="anchor" aria-label="anchor" href="#arg-min-clusters"></a></dt>
+<dd><p>When <code>clusters</code> is supplied, groups with fewer than this
+many distinct clusters are dropped rather than estimated (a single-cluster
+AFCP has no usable sampling variance). Ignored without <code>clusters</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble of tidy estimates: the grouping columns (if any) plus
-<code>estimate</code>, <code>std.error</code>, <code>conf.low</code>, <code>conf.high</code>, and the count of
-observations. <code>estimate</code> is the AFCP.</p>
+    <p>A tidy tibble, one row per group (or a single row when <code>by</code> is
+<code>NULL</code>): the grouping columns (if any) plus <code>estimate</code> (the AFCP),
+<code>std.error</code>, <code>statistic</code>, <code>p.value</code>, <code>conf.low</code>, <code>conf.high</code>, <code>df</code>, and
+<code>n</code> (observations). This is the tidy-tibble form, not a fit object, so that
+many per-group AFCPs compose directly into a meta-analysis; call
+<code><a href="https://declaredesign.org/r/estimatr/reference/lm_robust.html" class="external-link">estimatr::lm_robust()</a></code> yourself if you need the fit.</p>
     </div>
 
     <div class="section level2">
@@ -118,10 +131,10 @@ observations. <code>estimate</code> is the AFCP.</p>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"estimatr"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="fu">afcp</span><span class="op">(</span><span class="va">m</span>, by <span class="op">=</span> <span class="st">"study_id"</span>, clusters <span class="op">=</span> <span class="st">"resp_id"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 6</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   study_id estimate std.error conf.low conf.high     n</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> s1              1         0        1         1    40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 9</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   study_id estimate std.error statistic p.value conf.low conf.high    df     n</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> s1              1         0       <span style="color: #BB0000;">Inf</span>       0        1         1    19    40</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

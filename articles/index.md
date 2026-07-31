@@ -3,4 +3,4 @@
 ### Get started
 
 - [Getting your conjoint data into
-  shape](https://acoppock.github.io/conjointmatchups/articles/conjointmatchups.md):
+  shape](https://alexandercoppock.com/conjointmatchups/articles/conjointmatchups.md):

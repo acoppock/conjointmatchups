@@ -1,7 +1,7 @@
 # Reshape task-level (wide) conjoint data to profile-level (long)
 
 The inverse of
-[`as_tasks()`](https://acoppock.github.io/conjointmatchups/reference/as_tasks.md).
+[`as_tasks()`](https://alexandercoppock.com/conjointmatchups/reference/as_tasks.md).
 Columns matching `x{sep}{profile value}` are pivoted back into one row
 per profile per task; columns that do not match (task-level or
 respondent-level covariates) are recycled across the profiles.
@@ -48,7 +48,7 @@ A tibble in profile-long form.
 
 ## See also
 
-[`as_tasks()`](https://acoppock.github.io/conjointmatchups/reference/as_tasks.md)
+[`as_tasks()`](https://alexandercoppock.com/conjointmatchups/reference/as_tasks.md)
 for the inverse.
 
 ## Examples

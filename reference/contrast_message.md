@@ -1,7 +1,7 @@
 # Explain why a matchup contrast is not well defined
 
 Produces a human-readable message for a contrast rejected by
-[`valid_contrast()`](https://acoppock.github.io/conjointmatchups/reference/valid_contrast.md),
+[`valid_contrast()`](https://alexandercoppock.com/conjointmatchups/reference/valid_contrast.md),
 for use in error messages or interactive UIs.
 
 ## Usage
@@ -22,7 +22,7 @@ A length-1 character string.
 
 ## See also
 
-[`valid_contrast()`](https://acoppock.github.io/conjointmatchups/reference/valid_contrast.md)
+[`valid_contrast()`](https://alexandercoppock.com/conjointmatchups/reference/valid_contrast.md)
 
 ## Examples
 

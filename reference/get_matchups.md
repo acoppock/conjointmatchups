@@ -6,7 +6,7 @@ in `B` (in either display position). `get_matchups()` filters `tasks` to
 those rows and returns them with a single binary outcome, `winner`,
 equal to 1 when the A-side profile was chosen. This turns an arbitrary
 conjoint into a clean pairwise sub-experiment ready for estimation (see
-[`afcp()`](https://acoppock.github.io/conjointmatchups/reference/afcp.md)).
+[`afcp()`](https://alexandercoppock.com/conjointmatchups/reference/afcp.md)).
 
 ## Usage
 
@@ -29,7 +29,7 @@ get_matchups(
 - tasks:
 
   A data frame in task-wide form (see
-  [`as_tasks()`](https://acoppock.github.io/conjointmatchups/reference/as_tasks.md)).
+  [`as_tasks()`](https://alexandercoppock.com/conjointmatchups/reference/as_tasks.md)).
 
 - A, B:
 
@@ -81,7 +81,7 @@ levels. Otherwise a single profile can satisfy both sides and the
 "estimate" reflects display position (primacy), not a real difference.
 When `check_contrast = TRUE` (the default) an invalid contrast raises an
 error explaining why; see
-[`valid_contrast()`](https://acoppock.github.io/conjointmatchups/reference/valid_contrast.md).
+[`valid_contrast()`](https://alexandercoppock.com/conjointmatchups/reference/valid_contrast.md).
 
 ## Examples
 

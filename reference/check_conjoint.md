@@ -16,7 +16,7 @@ check_conjoint(tasks, outcome = "chosen", profiles = c("1", "2"), sep = "_")
 - tasks:
 
   A data frame in task-wide form (see
-  [`as_tasks()`](https://acoppock.github.io/conjointmatchups/reference/as_tasks.md)).
+  [`as_tasks()`](https://alexandercoppock.com/conjointmatchups/reference/as_tasks.md)).
 
 - outcome:
 

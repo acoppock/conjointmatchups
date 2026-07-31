@@ -75,7 +75,7 @@ Behavior*, 40(3), 571-591.
 ## Details
 
 This is the shape your own data should be in before calling
-[`as_tasks()`](https://acoppock.github.io/conjointmatchups/reference/as_tasks.md):
+[`as_tasks()`](https://alexandercoppock.com/conjointmatchups/reference/as_tasks.md):
 a set of columns that key the profile (respondent, task, profile index),
 a binary `chosen` indicator, and one column per randomized attribute.
 Attribute columns may be `NA` when a feature was not shown in a given

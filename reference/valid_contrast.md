@@ -25,8 +25,8 @@ valid_contrast(A, B)
 
 ## See also
 
-[`contrast_message()`](https://acoppock.github.io/conjointmatchups/reference/contrast_message.md),
-[`get_matchups()`](https://acoppock.github.io/conjointmatchups/reference/get_matchups.md)
+[`contrast_message()`](https://alexandercoppock.com/conjointmatchups/reference/contrast_message.md),
+[`get_matchups()`](https://alexandercoppock.com/conjointmatchups/reference/get_matchups.md)
 
 ## Examples
 

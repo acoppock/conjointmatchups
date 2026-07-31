@@ -9,7 +9,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/acoppock/conjointmatchups/blob/HEAD/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/acoppock/conjointmatchups/blob/main/DESCRIPTION)
 
 Coppock A (2026). *conjointmatchups: Reshape and Extract Matchups from
 Forced-Choice Conjoint Experiments*. R package version 0.0.0.9000,
