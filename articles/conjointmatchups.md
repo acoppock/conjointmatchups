@@ -179,11 +179,20 @@ standard errors:
 ``` r
 
 afcp(dem_v_rep, clusters = "respondent")
-#> # A tibble: 1 × 8
-#>   estimate std.error statistic  p.value conf.low conf.high    df     n
-#>      <dbl>     <dbl>     <dbl>    <dbl>    <dbl>     <dbl> <dbl> <int>
-#> 1    0.589    0.0227      25.9 3.81e-88    0.545     0.634  405.   582
+#> # A tibble: 1 × 9
+#>   estimate std.error statistic p.value conf.low conf.high    df     n n_clusters
+#>      <dbl>     <dbl>     <dbl>   <dbl>    <dbl>     <dbl> <dbl> <int>      <int>
+#> 1    0.589    0.0227      3.93 9.85e-5    0.545     0.634  405.   582        473
 ```
+
+The reported `statistic` and `p.value` test the AFCP against 0.5, the
+coin-flip null, not against 0. An AFCP of 0.5 is the null of no
+preference, so the intercept test `lm_robust()` reports by default
+answers a question nobody asks: it would return a p-value of essentially
+0 for an estimate sitting exactly on the null. Use `null_value` to test
+against something else (`null_value = 0` gives the usual intercept
+test). The estimate, its standard error, and the confidence interval do
+not depend on it.
 
 For richer estimands (AMCE, marginal means) hand the matchup, or the
 task-wide data, to `cregg` or `cjoint`. `conjointmatchups` stops at

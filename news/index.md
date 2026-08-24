@@ -26,6 +26,21 @@
   to estimate, matching the study-level behavior in the meta-analysis
   pipeline. Validated to reproduce the paper’s Shiny-app estimates
   bit-for-bit on the full 163-study corpus.
+- [`afcp()`](https://alexandercoppock.com/conjointmatchups/reference/afcp.md)
+  returns `n_clusters` (distinct clusters, i.e. respondents) alongside
+  `n` (observations, i.e. choice tasks). `lm_robust()` was already
+  computing the cluster count on the fit being summarised and the tibble
+  discarded it, which left a caller no way to report respondents at all.
+- Bug fix:
+  [`afcp()`](https://alexandercoppock.com/conjointmatchups/reference/afcp.md)
+  now tests against a null of 0.5 rather than 0. The AFCP is a choice
+  probability, so the coin-flip null is the one of interest; the
+  intercept test `lm_robust()` reports is against 0, which made
+  `p.value` essentially 0 for any well-powered study, including one
+  whose estimate sat exactly at 0.5. New `null_value` argument (default
+  `0.5`) sets the null; pass `null_value = 0` to recover the old
+  intercept test. `estimate`, `std.error` and the confidence interval
+  are unchanged.
 - Bug fix:
   [`get_matchups()`](https://alexandercoppock.com/conjointmatchups/reference/get_matchups.md)
   with an unconstrained side (an empty `A` or `B` list) no longer errors

@@ -18,6 +18,7 @@ workflow. For richer estimands (AMCE, marginal means) use 'cregg' or
 afcp(
   matchups,
   outcome = "A_wins",
+  null_value = 0.5,
   by = NULL,
   clusters = NULL,
   weights = NULL,
@@ -36,6 +37,15 @@ afcp(
 - outcome:
 
   Name of the binary outcome column. Defaults to `"A_wins"`.
+
+- null_value:
+
+  The value of the AFCP under the null hypothesis, against which
+  `statistic` and `p.value` are computed. Defaults to `0.5`, the
+  coin-flip null: an AFCP of 0.5 means the A-side profile is chosen half
+  the time, so a test against 0 is almost never the test of interest.
+  Set to `0` to recover the usual intercept test, or to any other value
+  to test a different null.
 
 - by:
 
@@ -69,9 +79,17 @@ afcp(
 
 A tidy tibble, one row per group (or a single row when `by` is `NULL`):
 the grouping columns (if any) plus `estimate` (the AFCP), `std.error`,
-`statistic`, `p.value`, `conf.low`, `conf.high`, `df`, and `n`
-(observations). This is the tidy-tibble form, not a fit object, so that
-many per-group AFCPs compose directly into a meta-analysis; call
+`statistic`, `p.value`, `conf.low`, `conf.high`, `df`, `n` and
+`n_clusters`. `statistic` is `(estimate - null_value) / std.error` and
+`p.value` is its two-sided t-test; `estimate`, `std.error` and the
+confidence interval do not depend on `null_value`. `n` counts
+observations, which for a matchup means choice tasks, and `n_clusters`
+counts distinct clusters, which means respondents when `clusters` is a
+respondent id and is `NA_integer_` when `clusters` is not supplied. Both
+are returned because `n` alone leaves a caller no way to report
+respondents, even though `lm_robust()` has already counted them. This is
+the tidy-tibble form, not a fit object, so that many per-group AFCPs
+compose directly into a meta-analysis; call
 [`estimatr::lm_robust()`](https://declaredesign.org/r/estimatr/reference/lm_robust.html)
 yourself if you need the fit.
 
@@ -89,9 +107,10 @@ m <- get_matchups(tasks, list(party = "R"), list(party = "D"),
 if (requireNamespace("estimatr", quietly = TRUE)) {
   afcp(m, by = "study_id", clusters = "resp_id")
 }
-#> # A tibble: 1 × 9
+#> # A tibble: 1 × 10
 #>   study_id estimate std.error statistic p.value conf.low conf.high    df     n
 #>   <chr>       <dbl>     <dbl>     <dbl>   <dbl>    <dbl>     <dbl> <dbl> <int>
 #> 1 s1              1         0       Inf       0        1         1    19    40
+#> # ℹ 1 more variable: n_clusters <int>
 # }
 ```

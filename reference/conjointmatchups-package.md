@@ -28,7 +28,7 @@ Useful links:
 
 - <https://github.com/acoppock/conjointmatchups>
 
-- <https://acoppock.github.io/conjointmatchups/>
+- <https://alexandercoppock.com/conjointmatchups/>
 
 - Report bugs at <https://github.com/acoppock/conjointmatchups/issues>
 
