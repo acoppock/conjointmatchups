@@ -12,6 +12,12 @@
 #'
 #' @param matchups A data frame from [get_matchups()].
 #' @param outcome Name of the binary outcome column. Defaults to `"A_wins"`.
+#' @param null_value The value of the AFCP under the null hypothesis, against
+#'   which `statistic` and `p.value` are computed. Defaults to `0.5`, the
+#'   coin-flip null: an AFCP of 0.5 means the A-side profile is chosen half the
+#'   time, so a test against 0 is almost never the test of interest. Set to `0`
+#'   to recover the usual intercept test, or to any other value to test a
+#'   different null.
 #' @param by Optional character vector of grouping columns (e.g. `"study_id"`);
 #'   one AFCP is returned per group.
 #' @param clusters Optional name of the cluster column (e.g. `"resp_id"`) for
@@ -28,7 +34,9 @@
 #' @return A tidy tibble, one row per group (or a single row when `by` is
 #'   `NULL`): the grouping columns (if any) plus `estimate` (the AFCP),
 #'   `std.error`, `statistic`, `p.value`, `conf.low`, `conf.high`, `df`, and
-#'   `n` (observations). This is the tidy-tibble form, not a fit object, so that
+#'   `n` (observations). `statistic` is `(estimate - null_value) / std.error`
+#'   and `p.value` is its two-sided t-test; `estimate`, `std.error` and the
+#'   confidence interval do not depend on `null_value`. This is the tidy-tibble form, not a fit object, so that
 #'   many per-group AFCPs compose directly into a meta-analysis; call
 #'   `estimatr::lm_robust()` yourself if you need the fit.
 #'
@@ -46,20 +54,29 @@
 #' }
 #' }
 #' @export
-afcp <- function(matchups, outcome = "A_wins", by = NULL,
+afcp <- function(matchups, outcome = "A_wins", null_value = 0.5, by = NULL,
                  clusters = NULL, weights = NULL, se_type = NULL,
                  min_clusters = 2L) {
   if (!requireNamespace("estimatr", quietly = TRUE)) {
     stop("`afcp()` requires the 'estimatr' package. Install it, or estimate ",
          "directly from the output of `get_matchups()`.", call. = FALSE)
   }
-  stopifnot(is.data.frame(matchups), outcome %in% names(matchups))
+  stopifnot(is.data.frame(matchups), outcome %in% names(matchups),
+            is.numeric(null_value), length(null_value) == 1L,
+            is.finite(null_value))
 
   fit_one <- function(d) {
     if (!is.null(clusters) &&
         dplyr::n_distinct(d[[clusters]]) < min_clusters) {
       return(tibble::tibble())
     }
+    # The test is against `null_value`, not 0. Recentering the outcome and
+    # shifting the estimate back afterwards leaves the standard error, the
+    # degrees of freedom and the interval width untouched, and lets
+    # `lm_robust()` compute the statistic and p-value for the null we want with
+    # its own machinery (CR2 Satterthwaite degrees of freedom included) rather
+    # than a hand-rolled t-test here.
+    d[[outcome]] <- d[[outcome]] - null_value
     args <- list(
       formula = stats::reformulate("1", response = outcome),
       data = d
@@ -74,12 +91,12 @@ afcp <- function(matchups, outcome = "A_wins", by = NULL,
       fit <- do.call(estimatr::lm_robust, args)
       i <- "(Intercept)"
       tibble::tibble(
-        estimate = unname(fit$coefficients[[i]]),
+        estimate = unname(fit$coefficients[[i]]) + null_value,
         std.error = unname(fit$std.error[[i]]),
         statistic = unname(fit$statistic[[i]]),
         p.value = unname(fit$p.value[[i]]),
-        conf.low = unname(fit$conf.low[[i]]),
-        conf.high = unname(fit$conf.high[[i]]),
+        conf.low = unname(fit$conf.low[[i]]) + null_value,
+        conf.high = unname(fit$conf.high[[i]]) + null_value,
         df = unname(fit$df[[i]]),
         n = fit$nobs
       )

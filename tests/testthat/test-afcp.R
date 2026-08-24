@@ -21,8 +21,13 @@ test_that("min_clusters drops single-cluster groups", {
   m <- make_m()
   d <- afcp(m, by = "study_id", clusters = "resp_id")
   expect_equal(d$study_id, "A")            # B (1 respondent) dropped
+  # With the guard relaxed the single-cluster group is handed to lm_robust,
+  # and what comes back is version-dependent: estimatr >= 2.0.0 refuses it
+  # (no between-cluster variation to estimate) so afcp() drops it anyway,
+  # while 1.0.6 returns it with a degenerate near-zero standard error. What
+  # afcp() must guarantee either way is that the group loop does not abort.
   d0 <- afcp(m, by = "study_id", clusters = "resp_id", min_clusters = 1L)
-  expect_setequal(d0$study_id, c("A", "B")) # guard relaxed -> B kept
+  expect_true("A" %in% d0$study_id)
 })
 
 test_that("afcp estimates the mean of the outcome", {
@@ -50,4 +55,55 @@ test_that("a degenerate single-cluster fit is dropped, not fatal", {
   d <- afcp(m, by = "study_id", clusters = "resp_id", min_clusters = 1L)
   expect_true("A" %in% d$study_id)
   expect_false("B" %in% d$study_id)
+})
+
+test_that("the default test is against 0.5, not 0", {
+  # 60/100 wins: far from 0.5 but nowhere near far enough to make p ~ 0.
+  m <- tibble::tibble(resp_id = 1:100, A_wins = rep(c(1, 1, 1, 0, 0), 20))
+  d <- afcp(m, clusters = "resp_id")
+  expect_equal(d$estimate, 0.6)
+  expect_equal(d$statistic, (0.6 - 0.5) / d$std.error)
+  expect_equal(d$p.value, 2 * stats::pt(abs(d$statistic), d$df, lower.tail = FALSE))
+  expect_gt(d$p.value, 0.01)
+})
+
+test_that("null_value moves only the test, not the estimate or the interval", {
+  m <- tibble::tibble(resp_id = 1:100, A_wins = rep(c(1, 1, 1, 0, 0), 20))
+  half <- afcp(m, clusters = "resp_id")
+  zero <- afcp(m, clusters = "resp_id", null_value = 0)
+  expect_equal(half$estimate, zero$estimate)
+  expect_equal(half$std.error, zero$std.error)
+  expect_equal(half$conf.low, zero$conf.low)
+  expect_equal(half$conf.high, zero$conf.high)
+  expect_equal(half$df, zero$df)
+  expect_lt(zero$p.value, half$p.value)      # 0.6 is much further from 0
+  expect_equal(zero$statistic, zero$estimate / zero$std.error)
+})
+
+test_that("null_value at the estimate gives p = 1", {
+  m <- tibble::tibble(resp_id = 1:100, A_wins = rep(c(1, 1, 1, 0, 0), 20))
+  d <- afcp(m, clusters = "resp_id", null_value = 0.6)
+  expect_equal(d$statistic, 0)
+  expect_equal(d$p.value, 1)
+})
+
+test_that("null_value applies within each `by` group", {
+  # Study A wins 60% of the time, study B 40%: symmetric about the 0.5 null, so
+  # the two groups must come back with the same statistic up to sign.
+  m <- tibble::tibble(
+    study_id = rep(c("A", "B"), each = 100),
+    resp_id = 1:200,
+    A_wins = c(rep(c(1, 1, 1, 0, 0), 20), rep(c(1, 1, 0, 0, 0), 20))
+  )
+  d <- afcp(m, by = "study_id", clusters = "resp_id")
+  expect_equal(d$estimate, c(0.6, 0.4))
+  expect_equal(d$statistic, c(1, -1) * (0.1 / d$std.error))
+  expect_equal(d$p.value[1], d$p.value[2])
+})
+
+test_that("null_value must be a finite scalar", {
+  m <- tibble::tibble(resp_id = 1:10, A_wins = rep(c(1, 0), 5))
+  expect_error(afcp(m, null_value = c(0.5, 0.6)))
+  expect_error(afcp(m, null_value = NA_real_))
+  expect_error(afcp(m, null_value = "0.5"))
 })

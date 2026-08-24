@@ -65,6 +65,7 @@ m <- get_matchups(tasks,
                   outcome = "chosen")
 
 # estimate the AFCP, respondent-clustered, per study
+# (statistic and p.value test against the coin-flip null of 0.5)
 afcp(m, by = "study_id", clusters = "resp_id", weights = "resp_weights")
 ```
 

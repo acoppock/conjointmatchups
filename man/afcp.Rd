@@ -7,6 +7,7 @@
 afcp(
   matchups,
   outcome = "A_wins",
+  null_value = 0.5,
   by = NULL,
   clusters = NULL,
   weights = NULL,
@@ -18,6 +19,13 @@ afcp(
 \item{matchups}{A data frame from \code{\link[=get_matchups]{get_matchups()}}.}
 
 \item{outcome}{Name of the binary outcome column. Defaults to \code{"A_wins"}.}
+
+\item{null_value}{The value of the AFCP under the null hypothesis, against
+which \code{statistic} and \code{p.value} are computed. Defaults to \code{0.5}, the
+coin-flip null: an AFCP of 0.5 means the A-side profile is chosen half the
+time, so a test against 0 is almost never the test of interest. Set to \code{0}
+to recover the usual intercept test, or to any other value to test a
+different null.}
 
 \item{by}{Optional character vector of grouping columns (e.g. \code{"study_id"});
 one AFCP is returned per group.}
@@ -40,7 +48,9 @@ AFCP has no usable sampling variance). Ignored without \code{clusters}.}
 A tidy tibble, one row per group (or a single row when \code{by} is
 \code{NULL}): the grouping columns (if any) plus \code{estimate} (the AFCP),
 \code{std.error}, \code{statistic}, \code{p.value}, \code{conf.low}, \code{conf.high}, \code{df}, and
-\code{n} (observations). This is the tidy-tibble form, not a fit object, so that
+\code{n} (observations). \code{statistic} is \code{(estimate - null_value) / std.error}
+and \code{p.value} is its two-sided t-test; \code{estimate}, \code{std.error} and the
+confidence interval do not depend on \code{null_value}. This is the tidy-tibble form, not a fit object, so that
 many per-group AFCPs compose directly into a meta-analysis; call
 \code{estimatr::lm_robust()} yourself if you need the fit.
 }

@@ -26,7 +26,7 @@ loop for the AFCP workflow.
 Useful links:
 \itemize{
   \item \url{https://github.com/acoppock/conjointmatchups}
-  \item \url{https://acoppock.github.io/conjointmatchups/}
+  \item \url{https://alexandercoppock.com/conjointmatchups/}
   \item Report bugs at \url{https://github.com/acoppock/conjointmatchups/issues}
 }
 
