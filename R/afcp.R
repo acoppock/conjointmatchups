@@ -33,11 +33,17 @@
 #'
 #' @return A tidy tibble, one row per group (or a single row when `by` is
 #'   `NULL`): the grouping columns (if any) plus `estimate` (the AFCP),
-#'   `std.error`, `statistic`, `p.value`, `conf.low`, `conf.high`, `df`, and
-#'   `n` (observations). `statistic` is `(estimate - null_value) / std.error`
-#'   and `p.value` is its two-sided t-test; `estimate`, `std.error` and the
-#'   confidence interval do not depend on `null_value`. This is the tidy-tibble form, not a fit object, so that
-#'   many per-group AFCPs compose directly into a meta-analysis; call
+#'   `std.error`, `statistic`, `p.value`, `conf.low`, `conf.high`, `df`,
+#'   `n` and `n_clusters`. `statistic` is `(estimate - null_value) /
+#'   std.error` and `p.value` is its two-sided t-test; `estimate`,
+#'   `std.error` and the confidence interval do not depend on `null_value`.
+#'   `n` counts observations, which for a matchup means choice tasks, and
+#'   `n_clusters` counts distinct clusters, which means respondents when
+#'   `clusters` is a respondent id and is `NA_integer_` when `clusters` is not
+#'   supplied. Both are returned because `n` alone leaves a caller no way to
+#'   report respondents, even though `lm_robust()` has already counted them.
+#'   This is the tidy-tibble form, not a fit object, so that many per-group
+#'   AFCPs compose directly into a meta-analysis; call
 #'   `estimatr::lm_robust()` yourself if you need the fit.
 #'
 #' @examples
@@ -98,7 +104,8 @@ afcp <- function(matchups, outcome = "A_wins", null_value = 0.5, by = NULL,
         conf.low = unname(fit$conf.low[[i]]) + null_value,
         conf.high = unname(fit$conf.high[[i]]) + null_value,
         df = unname(fit$df[[i]]),
-        n = fit$nobs
+        n = fit$nobs,
+        n_clusters = if (is.null(clusters)) NA_integer_ else fit$nclusters
       )
     }, error = function(e) tibble::tibble())
   }

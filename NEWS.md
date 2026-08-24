@@ -15,6 +15,10 @@
   drops groups with too few clusters to estimate, matching the study-level
   behavior in the meta-analysis pipeline. Validated to reproduce the paper's
   Shiny-app estimates bit-for-bit on the full 163-study corpus.
+* `afcp()` returns `n_clusters` (distinct clusters, i.e. respondents) alongside
+  `n` (observations, i.e. choice tasks). `lm_robust()` was already computing the
+  cluster count on the fit being summarised and the tibble discarded it, which
+  left a caller no way to report respondents at all.
 * Bug fix: `afcp()` now tests against a null of 0.5 rather than 0. The AFCP is
   a choice probability, so the coin-flip null is the one of interest; the
   intercept test `lm_robust()` reports is against 0, which made `p.value`

@@ -107,3 +107,17 @@ test_that("null_value must be a finite scalar", {
   expect_error(afcp(m, null_value = NA_real_))
   expect_error(afcp(m, null_value = "0.5"))
 })
+
+test_that("n counts tasks and n_clusters counts respondents", {
+  m <- make_m()[1:40, ]                       # 40 tasks across 20 respondents
+  d <- afcp(m, by = "study_id", clusters = "resp_id")
+  expect_equal(d$n, 40L)
+  expect_equal(d$n_clusters, 20L)
+})
+
+test_that("n_clusters is NA when no cluster column is given", {
+  m <- tibble::tibble(A_wins = rep(c(1, 0), 20))
+  d <- afcp(m)
+  expect_equal(d$n, 40L)
+  expect_true(is.na(d$n_clusters))
+})

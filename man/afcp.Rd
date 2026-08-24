@@ -47,11 +47,16 @@ AFCP has no usable sampling variance). Ignored without \code{clusters}.}
 \value{
 A tidy tibble, one row per group (or a single row when \code{by} is
 \code{NULL}): the grouping columns (if any) plus \code{estimate} (the AFCP),
-\code{std.error}, \code{statistic}, \code{p.value}, \code{conf.low}, \code{conf.high}, \code{df}, and
-\code{n} (observations). \code{statistic} is \code{(estimate - null_value) / std.error}
-and \code{p.value} is its two-sided t-test; \code{estimate}, \code{std.error} and the
-confidence interval do not depend on \code{null_value}. This is the tidy-tibble form, not a fit object, so that
-many per-group AFCPs compose directly into a meta-analysis; call
+\code{std.error}, \code{statistic}, \code{p.value}, \code{conf.low}, \code{conf.high}, \code{df},
+\code{n} and \code{n_clusters}. \code{statistic} is \code{(estimate - null_value) / std.error} and \code{p.value} is its two-sided t-test; \code{estimate},
+\code{std.error} and the confidence interval do not depend on \code{null_value}.
+\code{n} counts observations, which for a matchup means choice tasks, and
+\code{n_clusters} counts distinct clusters, which means respondents when
+\code{clusters} is a respondent id and is \code{NA_integer_} when \code{clusters} is not
+supplied. Both are returned because \code{n} alone leaves a caller no way to
+report respondents, even though \code{lm_robust()} has already counted them.
+This is the tidy-tibble form, not a fit object, so that many per-group
+AFCPs compose directly into a meta-analysis; call
 \code{estimatr::lm_robust()} yourself if you need the fit.
 }
 \description{
