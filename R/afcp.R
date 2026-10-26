@@ -93,17 +93,20 @@ afcp <- function(matchups, outcome = "A_wins", null_value = 0.5, by = NULL,
     # Wrap both the fit and the extraction: a degenerate study (e.g. a single
     # cluster) can return a fit whose components are missing, which would error
     # on extraction. Such a study is dropped rather than aborting the group loop.
+    # Single brackets: estimatr 2.0.1 returns an unnamed NA standard error when
+    # the outcome has no variation (every task won, or every task lost), and
+    # `[[i]]` would error on it and silently drop a cell that has an estimate.
     tryCatch({
       fit <- do.call(estimatr::lm_robust, args)
       i <- "(Intercept)"
       tibble::tibble(
-        estimate = unname(fit$coefficients[[i]]) + null_value,
-        std.error = unname(fit$std.error[[i]]),
-        statistic = unname(fit$statistic[[i]]),
-        p.value = unname(fit$p.value[[i]]),
-        conf.low = unname(fit$conf.low[[i]]) + null_value,
-        conf.high = unname(fit$conf.high[[i]]) + null_value,
-        df = unname(fit$df[[i]]),
+        estimate = unname(fit$coefficients[i]) + null_value,
+        std.error = unname(fit$std.error[i]),
+        statistic = unname(fit$statistic[i]),
+        p.value = unname(fit$p.value[i]),
+        conf.low = unname(fit$conf.low[i]) + null_value,
+        conf.high = unname(fit$conf.high[i]) + null_value,
+        df = unname(fit$df[i]),
         n = fit$nobs,
         n_clusters = if (is.null(clusters)) NA_integer_ else fit$nclusters
       )

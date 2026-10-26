@@ -121,3 +121,17 @@ test_that("n_clusters is NA when no cluster column is given", {
   expect_equal(d$n, 40L)
   expect_true(is.na(d$n_clusters))
 })
+
+test_that("a multi-cluster group with no outcome variation keeps its estimate", {
+  # Three respondents, every task lost: the point estimate is 0 and the standard
+  # error is undefined. The row must survive so a caller can repair the SE.
+  m <- tibble::tibble(
+    study_id = c(rep("A", 4), rep("B", 3)),
+    resp_id  = c(1, 1, 2, 2, 7, 8, 9),
+    A_wins   = c(1, 0, 1, 0, 0, 0, 0)
+  )
+  d <- afcp(m, by = "study_id", clusters = "resp_id")
+  expect_equal(d$study_id, c("A", "B"))
+  expect_equal(d$estimate[d$study_id == "B"], 0)
+  expect_true(is.na(d$std.error[d$study_id == "B"]) || d$std.error[d$study_id == "B"] < 1e-8)
+})

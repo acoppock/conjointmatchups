@@ -1,5 +1,10 @@
 # conjointmatchups 0.0.0.9000
 
+* `afcp()` no longer drops a study whose outcome has no variation (every task
+  won, or every task lost). Under estimatr 2.0.1 such a fit returns an unnamed
+  `NA` standard error, which made the extraction error inside `tryCatch()`.
+  The row now keeps its estimate with an `NA` standard error.
+
 * Initial scaffold.
 * `as_tasks()` / `as_profiles()`: lossless pivot between profile-long and
   task-wide representations of a forced-choice conjoint.
