@@ -1,6 +1,7 @@
 # conjointmatchups
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/acoppock/conjointmatchups/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/acoppock/conjointmatchups/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 `conjointmatchups` provides the **data grammar** of forced-choice (paired) conjoint experiments: lossless reshaping between the two natural representations of the data, and extraction of *matchups*, the analysis-ready pairwise sub-experiments that let you ask "when a candidate with these features faced a candidate with those features, which won?"
