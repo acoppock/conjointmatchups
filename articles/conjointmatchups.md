@@ -30,20 +30,16 @@ Kirkland and Coppock 2018) is in exactly this form:
 ``` r
 
 head(kc_yougov, 6)
-#>   respondent task profile chosen       party gender     race     age
-#> 1          1    1       1      0        <NA>    man Hispanic   older
-#> 2          1    1       2      1        <NA>    man    Black   older
-#> 3          1    2       1      1 Independent    man    Black younger
-#> 4          1    2       2      0 Independent  woman Hispanic   older
-#> 5          1    3       1      1        <NA>    man Hispanic younger
-#> 6          1    3       2      0        <NA>    man Hispanic younger
-#>      occupation       experience resp_party
-#> 1  professional prior experience   Democrat
-#> 2       teacher prior experience   Democrat
-#> 3      business prior experience   Democrat
-#> 4      business prior experience   Democrat
-#> 5          <NA> prior experience   Democrat
-#> 6 working class prior experience   Democrat
+#> # A tibble: 6 × 11
+#>   respondent  task profile chosen party gender race  age   occupation experience
+#>        <int> <int>   <int>  <int> <chr> <chr>  <chr> <chr> <chr>      <chr>     
+#> 1          1     1       1      0 NA    man    Hisp… older professio… prior exp…
+#> 2          1     1       2      1 NA    man    Black older teacher    prior exp…
+#> 3          1     2       1      1 Inde… man    Black youn… business   prior exp…
+#> 4          1     2       2      0 Inde… woman  Hisp… older business   prior exp…
+#> 5          1     3       1      1 NA    man    Hisp… youn… NA         prior exp…
+#> 6          1     3       2      0 NA    man    Hisp… youn… working c… prior exp…
+#> # ℹ 1 more variable: resp_party <chr>
 ```
 
 Here `respondent`, `task`, `profile` key each row; `chosen` is the

@@ -107,10 +107,11 @@ m <- get_matchups(tasks, list(party = "R"), list(party = "D"),
 if (requireNamespace("estimatr", quietly = TRUE)) {
   afcp(m, by = "study_id", clusters = "resp_id")
 }
+#> The model reproduces the outcome exactly, so there is no residual variation left to estimate a variance from and every standard error for it is NA. What the variance calculation returns here is zero or rounding error, not precision.
 #> # A tibble: 1 × 10
 #>   study_id estimate std.error statistic p.value conf.low conf.high    df     n
 #>   <chr>       <dbl>     <dbl>     <dbl>   <dbl>    <dbl>     <dbl> <dbl> <int>
-#> 1 s1              1         0       Inf       0        1         1    19    40
+#> 1 s1              1        NA        NA      NA       NA        NA    19    40
 #> # ℹ 1 more variable: n_clusters <int>
 # }
 ```

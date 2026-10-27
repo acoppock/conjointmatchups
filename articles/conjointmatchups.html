@@ -91,20 +91,16 @@ arguments. The shipped <code>kc_yougov</code> dataset (the YouGov sample
 from Kirkland and Coppock 2018) is in exactly this form:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">kc_yougov</span>, <span class="fl">6</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   respondent task profile chosen       party gender     race     age</span></span>
-<span><span class="co">#&gt; 1          1    1       1      0        &lt;NA&gt;    man Hispanic   older</span></span>
-<span><span class="co">#&gt; 2          1    1       2      1        &lt;NA&gt;    man    Black   older</span></span>
-<span><span class="co">#&gt; 3          1    2       1      1 Independent    man    Black younger</span></span>
-<span><span class="co">#&gt; 4          1    2       2      0 Independent  woman Hispanic   older</span></span>
-<span><span class="co">#&gt; 5          1    3       1      1        &lt;NA&gt;    man Hispanic younger</span></span>
-<span><span class="co">#&gt; 6          1    3       2      0        &lt;NA&gt;    man Hispanic younger</span></span>
-<span><span class="co">#&gt;      occupation       experience resp_party</span></span>
-<span><span class="co">#&gt; 1  professional prior experience   Democrat</span></span>
-<span><span class="co">#&gt; 2       teacher prior experience   Democrat</span></span>
-<span><span class="co">#&gt; 3      business prior experience   Democrat</span></span>
-<span><span class="co">#&gt; 4      business prior experience   Democrat</span></span>
-<span><span class="co">#&gt; 5          &lt;NA&gt; prior experience   Democrat</span></span>
-<span><span class="co">#&gt; 6 working class prior experience   Democrat</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 11</span></span></span>
+<span><span class="co">#&gt;   respondent  task profile chosen party gender race  age   occupation experience</span></span>
+<span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>          1     1       1      0 <span style="color: #BB0000;">NA</span>    man    Hisp… older professio… prior exp…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>          1     1       2      1 <span style="color: #BB0000;">NA</span>    man    Black older teacher    prior exp…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>          1     2       1      1 Inde… man    Black youn… business   prior exp…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>          1     2       2      0 Inde… woman  Hisp… older business   prior exp…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>          1     3       1      1 <span style="color: #BB0000;">NA</span>    man    Hisp… youn… <span style="color: #BB0000;">NA</span>         prior exp…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>          1     3       2      0 <span style="color: #BB0000;">NA</span>    man    Hisp… youn… working c… prior exp…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: resp_party &lt;chr&gt;</span></span></span></code></pre></div>
 <p>Here <code>respondent</code>, <code>task</code>, <code>profile</code>
 key each row; <code>chosen</code> is the outcome; <code>party</code>
 through <code>experience</code> are the randomized attributes; and
